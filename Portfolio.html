@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Andrew Aristo — Game Programmer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --bg2: #0e0e1a;
+  --card: #111120;
+  --card2: #181828;
+  --green: #a8ff78;
+  --green-dim: rgba(168,255,120,0.12);
+  --green-border: rgba(168,255,120,0.2);
+  --blue: #78b4ff;
+  --blue-dim: rgba(120,180,255,0.1);
+  --orange: #ffab78;
+  --orange-dim: rgba(255,171,120,0.1);
+  --text: #e2e2f0;
+  --text2: #8a8aaa;
+  --text3: #55556a;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px);
+}
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 3.5rem;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(8,8,16,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--green);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+
+.nav-links { display: flex; gap: 0; list-style: none; }
+
+.nav-links a {
+  color: var(--text2);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  padding: 0.4rem 1.1rem;
+  border-radius: 20px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 8rem 3.5rem 5rem;
+  gap: 4rem;
+  overflow: hidden;
+}
+
+.hero-bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.hero-bg-circle.c1 {
+  width: 500px; height: 500px;
+  background: rgba(168,255,120,0.055);
+  top: -80px; left: -100px;
+}
+
+.hero-bg-circle.c2 {
+  width: 350px; height: 350px;
+  background: rgba(120,180,255,0.04);
+  bottom: 80px; right: 80px;
+}
+
+.hero-left { position: relative; z-index: 1; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--green);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 1.75rem;
+  opacity: 0;
+  animation: up 0.7s 0.1s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+.eyebrow-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(4rem, 7vw, 7rem);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.75rem;
+  opacity: 0;
+  animation: up 0.7s 0.2s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+h1 em {
+  font-style: italic;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(226,226,240,0.25);
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: var(--text2);
+  font-weight: 300;
+  max-width: 400px;
+  line-height: 1.75;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: up 0.7s 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+.hero-actions {
+  display: flex; gap: 0.85rem; flex-wrap: wrap;
+  opacity: 0;
+  animation: up 0.7s 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 0.7rem 1.5rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-solid { background: var(--green); color: #060a04; }
+
+.btn-solid:hover {
+  background: #c8ffa8;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(168,255,120,0.2);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border2);
+}
+
+.btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+
+.hero-right {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; gap: 1rem;
+  opacity: 0;
+  animation: up 0.7s 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+.stat-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  display: flex; align-items: center; gap: 1.5rem;
+  position: relative; overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.stat-panel:hover { border-color: var(--border2); }
+
+.stat-panel-accent {
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: 3px; border-radius: 0 2px 2px 0;
+}
+
+.stat-panel-accent.g { background: var(--green); }
+.stat-panel-accent.b { background: var(--blue); }
+.stat-panel-accent.o { background: var(--orange); }
+
+.stat-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; flex-shrink: 0;
+}
+
+.stat-icon.g { background: var(--green-dim); }
+.stat-icon.b { background: var(--blue-dim); }
+.stat-icon.o { background: var(--orange-dim); }
+
+.stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem; line-height: 1; margin-bottom: 3px;
+}
+
+.stat-num.g { color: var(--green); }
+.stat-num.b { color: var(--blue); }
+.stat-num.o { color: var(--orange); }
+
+.stat-label { font-size: 0.78rem; color: var(--text2); }
+
+.section-wrap {
+  max-width: 1100px; margin: 0 auto;
+  padding: 5rem 3.5rem;
+  position: relative; z-index: 1;
+}
+
+.section-head {
+  display: flex; align-items: center; gap: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.section-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text3);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.section-rule { flex: 1; height: 1px; background: var(--border); }
+
+.skills-bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.skills-bento-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.skill-tile {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  position: relative; overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+.skill-tile:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+.skill-tile-top {
+  position: absolute; top: 0; left: 2rem; right: 2rem; height: 1px;
+}
+
+.tile-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  margin-bottom: 0.2rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+
+.tile-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.2rem 0.55rem; border-radius: 4px;
+}
+
+.tile-badge.g { background: var(--green-dim); color: var(--green); }
+.tile-badge.b { background: var(--blue-dim); color: var(--blue); }
+.tile-badge.o { background: var(--orange-dim); color: var(--orange); }
+
+.tile-divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+.feature-list { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+
+.feature-list li {
+  font-size: 0.82rem; color: var(--text2);
+  display: flex; gap: 0.6rem; align-items: baseline;
+}
+
+.feature-list li::before {
+  content: '·'; color: var(--green); font-size: 1.2rem; line-height: 0.8; flex-shrink: 0;
+}
+
+.feature-list li strong { color: var(--text); font-weight: 500; }
+
+.lang-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem; }
+
+.lang-chip {
+  font-family: 'DM Mono', monospace; font-size: 0.78rem; font-weight: 500;
+  padding: 0.35rem 0.85rem; border-radius: 6px;
+  border: 1px solid var(--border2); color: var(--orange);
+}
+
+.soft-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-top: 0.75rem;
+}
+
+.soft-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.83rem; color: var(--text2); }
+
+.soft-pip { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+.exp-timeline { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.exp-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 2rem 2.25rem; display: grid; grid-template-columns: 1fr auto;
+  gap: 2rem; position: relative; overflow: hidden; transition: border-color 0.25s;
+}
+
+.exp-card:hover { border-color: var(--border2); }
+
+.exp-glow {
+  position: absolute; top: 0; left: 0; bottom: 0; width: 60px; pointer-events: none;
+}
+
+.exp-glow.g { background: linear-gradient(90deg, rgba(168,255,120,0.06), transparent); }
+.exp-glow.o { background: linear-gradient(90deg, rgba(255,171,120,0.06), transparent); }
+
+.exp-stripe { position: absolute; top: 0; left: 0; bottom: 0; width: 3px; }
+.exp-stripe.g { background: var(--green); }
+.exp-stripe.o { background: var(--orange); }
+
+.exp-role { font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: 0.15rem; }
+
+.exp-org {
+  font-family: 'DM Mono', monospace; font-size: 0.72rem;
+  color: var(--green); letter-spacing: 0.08em; margin-bottom: 1rem;
+}
+
+.exp-points { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+.exp-points li {
+  font-size: 0.83rem; color: var(--text2); padding-left: 1.25rem; position: relative;
+}
+
+.exp-points li::before { content: '—'; position: absolute; left: 0; color: var(--text3); }
+
+.exp-tags { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
+
+.exp-tag {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text3); border: 1px solid var(--border);
+  padding: 0.25rem 0.65rem; border-radius: 4px; white-space: nowrap;
+}
+
+.edu-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 2.5rem 2.75rem; display: flex; justify-content: space-between;
+  align-items: center; gap: 2rem; position: relative; overflow: hidden;
+  transition: border-color 0.25s;
+}
+
+.edu-card:hover { border-color: var(--border2); }
+
+.edu-bg-text {
+  position: absolute; right: -0.5rem; bottom: -1.5rem;
+  font-family: 'DM Serif Display', serif; font-size: 9rem; font-style: italic;
+  color: rgba(168,255,120,0.04); line-height: 1; pointer-events: none; user-select: none;
+}
+
+.edu-label {
+  font-family: 'DM Mono', monospace; font-size: 0.68rem;
+  color: var(--green); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.75rem;
+}
+
+.edu-degree {
+  font-family: 'DM Serif Display', serif; font-size: 1.5rem;
+  line-height: 1.25; margin-bottom: 0.75rem; max-width: 420px;
+}
+
+.edu-meta { font-size: 0.82rem; color: var(--text2); }
+
+.edu-year {
+  font-family: 'DM Serif Display', serif; font-style: italic;
+  font-size: 4.5rem; color: rgba(168,255,120,0.15); line-height: 1; flex-shrink: 0;
+}
+
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.contact-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 1.5rem 1.75rem; text-decoration: none; color: inherit;
+  display: flex; align-items: center; gap: 1rem; transition: border-color 0.2s, background 0.2s;
+}
+
+.contact-card:hover { border-color: var(--green-border); background: rgba(168,255,120,0.03); }
+
+.contact-icon {
+  width: 42px; height: 42px; border-radius: 10px; background: var(--green-dim);
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+}
+
+.contact-label {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 0.2rem;
+}
+
+.contact-val { font-size: 0.88rem; font-weight: 500; color: var(--text); }
+
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border); padding: 1.75rem 3.5rem;
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--text3); letter-spacing: 0.06em;
+}
+
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+
+.reveal.on { opacity: 1; transform: none; }
+
+@keyframes up { to { opacity: 1; transform: none; } }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--text3); border-radius: 2px; }
+
+@media (max-width: 860px) {
+  nav { padding: 0 1.5rem; }
+  .nav-links { display: none; }
+  #hero { grid-template-columns: 1fr; padding: 7rem 1.5rem 3rem; gap: 2.5rem; }
+  .section-wrap { padding: 4rem 1.5rem; }
+  .skills-bento { grid-template-columns: 1fr; }
+  .skills-bento-bottom { grid-template-columns: 1fr; }
+  .exp-card { grid-template-columns: 1fr; }
+  .exp-tags { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+  .edu-card { flex-direction: column; }
+  .edu-year { font-size: 3rem; }
+  .contact-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 0.4rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#hero">andrew.aristo</a>
+  <ul class="nav-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="hero-bg-circle c1"></div>
+  <div class="hero-bg-circle c2"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      Open to internship opportunities
+    </div>
+    <h1>Andrew<br><em>Aristo.</em></h1>
+    <p class="hero-sub">
+      Game Programmer based in Kuala Lumpur. Building gameplay systems, physics mechanics, and AI behaviours in Unity &amp; Unreal Engine 5 — currently studying Computer Games Development at APU.
+    </p>
+    <div class="hero-actions">
+      <a href="mailto:andrewandrew11211@gmail.com" class="btn btn-solid">Get in touch ↗</a>
+      <a href="https://itch.io" target="_blank" class="btn btn-ghost">View on Itch.io</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="stat-panel">
+      <div class="stat-panel-accent g"></div>
+      <div class="stat-icon g">🎮</div>
+      <div>
+        <div class="stat-num g">Unity + UE5</div>
+        <div class="stat-label">Two game engines, intermediate level</div>
+      </div>
+    </div>
+    <div class="stat-panel">
+      <div class="stat-panel-accent b"></div>
+      <div class="stat-icon b">⚡</div>
+      <div>
+        <div class="stat-num b">96-Hour Jam</div>
+        <div class="stat-label">Lead Programmer — Swamp Grappler</div>
+      </div>
+    </div>
+    <div class="stat-panel">
+      <div class="stat-panel-accent o"></div>
+      <div class="stat-icon o">🧑‍💻</div>
+      <div>
+        <div class="stat-num o">C# · C++ · Python</div>
+        <div class="stat-label">Core programming languages</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<div class="section-wrap" id="skills">
+  <div class="section-head reveal">
+    <span class="section-tag">01 / Skills</span>
+    <h2>Technical Expertise</h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="skills-bento">
+    <div class="skill-tile reveal">
+      <div class="skill-tile-top" style="background:linear-gradient(90deg,var(--green),transparent);"></div>
+      <div class="tile-title">Unity Engine <span class="tile-badge g">Intermediate</span></div>
+      <div style="font-size:0.78rem;color:var(--text3);margin-bottom:0.25rem;">C# · Physics · AI</div>
+      <div class="tile-divider"></div>
+      <ul class="feature-list">
+        <li><strong>Gameplay Programming</strong> — core mechanics, player input &amp; interactive logic</li>
+        <li><strong>AI &amp; Pathfinding</strong> — state-driven behaviours &amp; waypoint navigation</li>
+        <li><strong>Physics &amp; Movement</strong> — Rigidbody, collision, character controllers</li>
+        <li><strong>System Design</strong> — raycasting, object pooling</li>
+        <li><strong>UI Integration</strong> — event binding, data-driven updates</li>
+      </ul>
+    </div>
+
+    <div class="skill-tile reveal">
+      <div class="skill-tile-top" style="background:linear-gradient(90deg,var(--blue),transparent);"></div>
+      <div class="tile-title">Unreal Engine 5 <span class="tile-badge b">Intermediate</span></div>
+      <div style="font-size:0.78rem;color:var(--text3);margin-bottom:0.25rem;">Blueprint · C++ · Actor Components</div>
+      <div class="tile-divider"></div>
+      <ul class="feature-list">
+        <li><strong>Gameplay Scripting</strong> — Blueprint mechanics &amp; event-driven systems</li>
+        <li><strong>Core Programming</strong> — player controllers, input systems, basic AI</li>
+        <li><strong>Systems Integration</strong> — level triggers, actor components &amp; seamless interactions</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="skills-bento-bottom">
+    <div class="skill-tile reveal">
+      <div class="skill-tile-top" style="background:linear-gradient(90deg,var(--orange),transparent);"></div>
+      <div class="tile-title">Languages <span class="tile-badge o">Core</span></div>
+      <div class="tile-divider"></div>
+      <div class="lang-row">
+        <span class="lang-chip">C#</span>
+        <span class="lang-chip">C++</span>
+        <span class="lang-chip">Python</span>
+      </div>
+      <div style="margin-top:1.25rem;">
+        <div style="font-size:0.72rem;color:var(--text3);margin-bottom:0.6rem;letter-spacing:0.08em;text-transform:uppercase;font-family:'DM Mono',monospace;">Spoken</div>
+        <div style="display:flex;flex-direction:column;gap:0.4rem;">
+          <span style="font-size:0.8rem;color:var(--text2);background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:5px;padding:0.25rem 0.65rem;">🇬🇧 English — Fluent</span>
+          <span style="font-size:0.8rem;color:var(--text2);background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:5px;padding:0.25rem 0.65rem;">🇮🇩 Bahasa Indonesia — Native</span>
+          <span style="font-size:0.8rem;color:var(--text2);background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:5px;padding:0.25rem 0.65rem;">🇲🇾 Bahasa Melayu — Basic</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-tile reveal">
+      <div class="skill-tile-top" style="background:linear-gradient(90deg,rgba(168,255,120,0.4),transparent);"></div>
+      <div class="tile-title">Soft Skills <span class="tile-badge g">Personal</span></div>
+      <div class="tile-divider"></div>
+      <div class="soft-grid">
+        <div class="soft-item"><div class="soft-pip"></div>Problem Solving</div>
+        <div class="soft-item"><div class="soft-pip"></div>Adaptability</div>
+        <div class="soft-item"><div class="soft-pip"></div>Communication</div>
+        <div class="soft-item"><div class="soft-pip"></div>Creativity</div>
+      </div>
+    </div>
+
+    <div class="skill-tile reveal">
+      <div class="skill-tile-top" style="background:linear-gradient(90deg,var(--blue),transparent);"></div>
+      <div class="tile-title">Hobbies <span class="tile-badge b">Off-duty</span></div>
+      <div class="tile-divider"></div>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="font-size:1.4rem;">🏸</span>
+          <div>
+            <div style="font-size:0.85rem;font-weight:500;color:var(--text);">Badminton</div>
+            <div style="font-size:0.75rem;color:var(--text3);">Sport</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="font-size:1.4rem;">♟</span>
+          <div>
+            <div style="font-size:0.85rem;font-weight:500;color:var(--text);">Chess</div>
+            <div style="font-size:0.75rem;color:var(--text3);">Strategy</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <span style="font-size:1.4rem;">🎮</span>
+          <div>
+            <div style="font-size:0.85rem;font-weight:500;color:var(--text);">Gaming</div>
+            <div style="font-size:0.75rem;color:var(--text3);">Passion</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPERIENCE -->
+<div class="section-wrap" id="experience">
+  <div class="section-head reveal">
+    <span class="section-tag">02 / Experience</span>
+    <h2>Work &amp; Projects</h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="exp-timeline">
+    <div class="exp-card reveal">
+      <div class="exp-glow g"></div>
+      <div class="exp-stripe g"></div>
+      <div>
+        <div class="exp-role">Lead Programmer</div>
+        <div class="exp-org">Fundamental Jam #2 — Swamp Grappler</div>
+        <ul class="exp-points">
+          <li>Engineered a 2D physics-based grappling hook in Unity using raycasting for dynamic hit detection and SpringJoint2D for realistic rope simulation.</li>
+          <li>Developed a delay-based reeling mechanic with perpendicular force calculations for momentum-driven swinging gameplay.</li>
+        </ul>
+      </div>
+      <div class="exp-tags">
+        <span class="exp-tag">96hr Game Jam</span>
+        <span class="exp-tag">Unity / C#</span>
+        <span class="exp-tag">Physics</span>
+      </div>
+    </div>
+
+    <div class="exp-card reveal">
+      <div class="exp-glow o"></div>
+      <div class="exp-stripe o"></div>
+      <div>
+        <div class="exp-role">Tournament Marshall</div>
+        <div class="exp-org" style="color:var(--orange);">APU Esport Festival 2024</div>
+        <ul class="exp-points">
+          <li>Managed match scheduling and ensured smooth tournament flow during live events.</li>
+          <li>Assisted in logistics including match setup and player coordination.</li>
+          <li>Monitored gameplay to ensure fair play and resolve disputes when necessary.</li>
+        </ul>
+      </div>
+      <div class="exp-tags">
+        <span class="exp-tag">Live Event</span>
+        <span class="exp-tag">2024</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDUCATION -->
+<div class="section-wrap" id="education">
+  <div class="section-head reveal">
+    <span class="section-tag">03 / Education</span>
+    <h2>Academic Background</h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="edu-card reveal">
+    <div class="edu-bg-text">APU</div>
+    <div>
+      <div class="edu-label">Currently Enrolled · 2024 – 2027</div>
+      <div class="edu-degree">Bachelor of Science (Hons) in<br>Computer Games Development</div>
+      <div class="edu-meta">Asia Pacific University · Kuala Lumpur, Malaysia</div>
+    </div>
+    <div class="edu-year">2027</div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="section-wrap" id="contact">
+  <div class="section-head reveal">
+    <span class="section-tag">04 / Contact</span>
+    <h2>Get in Touch</h2>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="contact-grid">
+    <a href="mailto:andrewandrew11211@gmail.com" class="contact-card reveal">
+      <div class="contact-icon">✉</div>
+      <div>
+        <div class="contact-label">Email</div>
+        <div class="contact-val">andrewandrew11211@gmail.com</div>
+      </div>
+    </a>
+    <a href="tel:+601129247334" class="contact-card reveal">
+      <div class="contact-icon">📱</div>
+      <div>
+        <div class="contact-label">Phone</div>
+        <div class="contact-val">+60 11-2924-7334</div>
+      </div>
+    </a>
+    <a href="https://itch.io" target="_blank" class="contact-card reveal">
+      <div class="contact-icon">🎮</div>
+      <div>
+        <div class="contact-label">Portfolio</div>
+        <div class="contact-val">Itch.io ↗</div>
+      </div>
+    </a>
+    <div class="contact-card reveal" style="cursor:default;">
+      <div class="contact-icon">📍</div>
+      <div>
+        <div class="contact-label">Location</div>
+        <div class="contact-val">Bukit Jalil, Kuala Lumpur</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:1rem;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem 1.75rem;display:flex;align-items:center;gap:1rem;" class="reveal">
+    <div class="contact-icon" style="background:var(--blue-dim);">👨‍🏫</div>
+    <div>
+      <div class="contact-label">Academic Reference</div>
+      <div class="contact-val">Mr. Jacob Sow Tian You</div>
+      <div style="font-size:0.78rem;color:var(--text2);">Faculty of Computing, Engineering &amp; Technology · <a href="mailto:jacob.sow@apu.edu.my" style="color:var(--blue);text-decoration:none;">jacob.sow@apu.edu.my</a></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>Andrew Aristo — Game Programmer</span>
+  <span>Bukit Jalil, KL · Malaysia</span>
+</footer>
+
+<script>
+const els = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (e.isIntersecting) {
+      const siblings = [...e.target.parentElement.querySelectorAll('.reveal:not(.on)')];
+      const idx = siblings.indexOf(e.target);
+      setTimeout(() => { e.target.classList.add('on'); io.unobserve(e.target); }, Math.max(0, idx) * 90);
+    }
+  });
+}, { threshold: 0.08 });
+els.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>

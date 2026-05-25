@@ -314,18 +314,21 @@ h2 {
 
 .tile-divider { height: 1px; background: var(--border); margin: 1rem 0; }
 
-.feature-list { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; }
+.feature-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
 
 .feature-list li {
   font-size: 0.82rem; color: var(--text2);
-  display: flex; gap: 0.6rem; align-items: baseline;
+  display: flex; flex-direction: column; gap: 0.1rem;
+  padding-left: 1rem;
+  position: relative;
 }
 
 .feature-list li::before {
-  content: '·'; color: var(--green); font-size: 1.2rem; line-height: 0.8; flex-shrink: 0;
+  content: '·'; color: var(--green); font-size: 1.1rem;
+  position: absolute; left: 0; top: 0; line-height: 1.4;
 }
 
-.feature-list li strong { color: var(--text); font-weight: 500; }
+.feature-list li strong { color: var(--text); font-weight: 500; display: block; }
 
 .lang-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem; }
 
@@ -336,7 +339,7 @@ h2 {
 }
 
 .soft-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-top: 0.75rem;
+  display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem;
 }
 
 .soft-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.83rem; color: var(--text2); }
